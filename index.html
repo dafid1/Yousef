@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>نظام إدارة محطات شركة النفط | Gas Station Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .gradient-1 { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-2 { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .gradient-3 { background: linear-gradient(135deg, #0f71c7 0%, #00f2fe 100%); }
+        .gradient-4 { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .gradient-5 { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .gradient-6 { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="min-h-screen gradient-1">
+        <!-- Header -->
+        <header class="glass py-6 sticky top-0 z-50">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <span class="material-symbols-outlined text-5xl">local_gas_station</span>
+                        <div>
+                            <h1 class="text-2xl font-bold">نظام إدارة محطات النفط</h1>
+                            <p class="text-sm opacity-80">Gas Station Management System</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass px-4 py-2 rounded-full text-sm hover:bg-white/20 transition flex items-center gap-2">
+                            <span class="material-symbols-outlined">settings</span>
+                            <span>الإعدادات</span>
+                        </button>
+                        <span class="glass px-4 py-2 rounded-full text-sm">SQLite Database</span>
+                        <span class="material-symbols-outlined text-3xl cursor-pointer hover:scale-110 transition">settings</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="container mx-auto px-4 py-16 text-center">
+            <div class="float-animation inline-block mb-6">
+                <span class="material-symbols-outlined" style="font-size: 120px;">gas_meter</span>
+            </div>
+            <h2 class="text-5xl font-black mb-4">مرحباً بك في نظام الإدارة المتكامل</h2>
+            <p class="text-xl opacity-90 mb-8 max-w-2xl mx-auto">إدارة شاملة لمحطات الوقود، المبيعات، المخزون والتقارير في منصة واحدة متكاملة</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="scrollToModules()" class="bg-white text-purple-700 px-8 py-4 rounded-full font-bold text-lg hover:bg-opacity-90 transition flex items-center gap-2">
+                    <span>استكشف النظام</span>
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                </button>
+                <button onclick="showStats()" class="glass px-8 py-4 rounded-full font-bold text-lg hover:bg-white hover:bg-opacity-20 transition flex items-center gap-2">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>الإحصائيات</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section id="stats" class="container mx-auto px-4 py-12 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass p-6 rounded-2xl text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2">store</span>
+                    <h3 class="text-3xl font-bold" id="stationCount">0</h3>
+                    <p class="opacity-80">محطة نشطة</p>
+                </div>
+                <div class="glass p-6 rounded-2xl text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2">receipt</span>
+                    <h3 class="text-3xl font-bold" id="salesCount">0</h3>
+                    <p class="opacity-80">عملية بيع</p>
+                </div>
+                <div class="glass p-6 rounded-2xl text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2">payments</span>
+                    <h3 class="text-3xl font-bold" id="totalRevenue">0</h3>
+                    <p class="opacity-80">ريال إجمالي المبيعات</p>
+                </div>
+                <div class="glass p-6 rounded-2xl text-center">
+                    <span class="material-symbols-outlined text-5xl mb-2">oil_barrel</span>
+                    <h3 class="text-3xl font-bold" id="tankCount">0</h3>
+                    <p class="opacity-80">خزان وقود</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Modules Grid -->
+        <section id="modules" class="container mx-auto px-4 py-16">
+            <h2 class="text-4xl font-bold text-center mb-12">وحدات النظام</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Module Cards -->
+                <a href="dashboard.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-1 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">dashboard</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">لوحة التحكم الرئيسية</h3>
+                    <p class="opacity-80 mb-4">نظرة شاملة على جميع العمليات والإحصائيات</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+
+                <a href="stations.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-2 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">location_on</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">إدارة المحطات</h3>
+                    <p class="opacity-80 mb-4">عرض وإدارة جميع محطات الوقود</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+
+                <a href="sales.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-3 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">point_of_sale</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">نقطة البيع</h3>
+                    <p class="opacity-80 mb-4">تسجيل عمليات البيع وإصدار الفواتير</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+
+                <a href="inventory.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-4 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">inventory</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">إدارة المخزون</h3>
+                    <p class="opacity-80 mb-4">متابعة مستويات الوقود والخزانات</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+
+                <a href="reports.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-5 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">analytics</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">التقارير والإحصائيات</h3>
+                    <p class="opacity-80 mb-4">تقارير شاملة للمبيعات والأداء</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+
+                <a href="employees.html" class="card-hover glass p-8 rounded-3xl cursor-pointer group">
+                    <div class="w-20 h-20 gradient-6 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition">
+                        <span class="material-symbols-outlined text-5xl">group</span>
+                    </div>
+                    <h3 class="text-2xl font-bold mb-3">إدارة الموظفين</h3>
+                    <p class="opacity-80 mb-4">تسجيل ومتابعة بيانات الموظفين</p>
+                    <div class="flex items-center gap-2 text-sm opacity-60">
+                        <span class="material-symbols-outlined text-lg">arrow_back</span>
+                        <span>اضغط للدخول</span>
+                    </div>
+                </a>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="glass py-8 mt-16">
+            <div class="container mx-auto px-4 text-center">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <span class="material-symbols-outlined">verified</span>
+                    <span class="font-bold">نظام آمن ومستقر</span>
+                </div>
+                <p class="opacity-60 text-sm">تم التطوير باستخدام: Node.js + Express + SQLite + TailwindCSS</p>
+                <p class="opacity-40 text-xs mt-2">© 2024 نظام إدارة محطات النفط - جميع الحقوق محفوظة</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        function scrollToModules() {
+            document.getElementById('modules').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showStats() {
+            const statsSection = document.getElementById('stats');
+            statsSection.classList.toggle('hidden');
+            
+            if (!statsSection.classList.contains('hidden')) {
+                try {
+                    const stations = await api.get('/stations');
+                    document.getElementById('stationCount').textContent = stations.length;
+                    
+                    const summary = await api.get('/reports/sales/summary');
+                    document.getElementById('salesCount').textContent = summary.sales_count || 0;
+                    document.getElementById('totalRevenue').textContent = (summary.total_sales || 0).toLocaleString();
+                    
+                    let totalTanks = 0;
+                    for(const station of stations) {
+                        totalTanks += station.total_tanks || 0;
+                    }
+                    document.getElementById('tankCount').textContent = totalTanks;
+                } catch(err) {
+                    console.error('Error loading stats:', err);
+                }
+            }
+        }
+
+        // Initialize mock user on page load
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+        });
+    </script>
+</body>
+</html>

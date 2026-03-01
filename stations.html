@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>إدارة المحطات | Gas Station Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .station-card { transition: all 0.3s ease; }
+        .station-card:hover { transform: scale(1.02); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">إدارة متكاملة</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">dashboard</span></div>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">location_on</span></div>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">point_of_sale</span></div>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">inventory</span></div>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">analytics</span></div>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">group</span></div>
+                    <span>الموظفين</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6 space-y-2">
+                <a href="settings.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-rose-500 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">settings</span>
+                    </div>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="index.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>الصفحة الرئيسية</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8 gradient-bg min-h-screen">
+            <!-- Header -->
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold">إدارة المحطات</h2>
+                        <p class="opacity-70 mt-1">عرض وإدارة جميع محطات الوقود</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                        <button onclick="showAddStationModal()" class="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition flex items-center gap-2">
+                            <span class="material-symbols-outlined">add</span>
+                            <span>إضافة محطة جديدة</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Search & Filter -->
+            <div class="glass p-6 rounded-2xl mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <input type="text" id="searchInput" placeholder="بحث عن محطة..." class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="filterStations()"/>
+                    <select id="cityFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterStations()">
+                        <option value="">جميع المدن</option>
+                        <option value="الرياض">الرياض</option>
+                        <option value="جدة">جدة</option>
+                        <option value="الدمام">الدمام</option>
+                    </select>
+                    <select id="statusFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="filterStations()">
+                        <option value="">جميع الحالات</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stations Grid -->
+            <div id="stationsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic content -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Station Modal -->
+    <div id="addStationModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold">إضافة محطة جديدة</h3>
+                <button onclick="hideAddStationModal()" class="text-white/60 hover:text-white">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            
+            <form id="addStationForm" class="space-y-4">
+                <div>
+                    <label class="block mb-2 text-sm opacity-80">اسم المحطة</label>
+                    <input type="text" name="name" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm opacity-80">رمز المحطة</label>
+                    <input type="text" name="station_code" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">المدينة</label>
+                        <input type="text" name="city" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">الحالة</label>
+                        <select name="status" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block mb-2 text-sm opacity-80">الموقع</label>
+                    <textarea name="location" rows="2" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-teal-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition">
+                    حفظ المحطة
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allStations = [];
+
+        async function loadStations() {
+            try {
+                allStations = await api.get('/stations');
+                displayStations(allStations);
+            } catch (err) {
+                console.error('Error loading stations:', err);
+                document.getElementById('stationsGrid').innerHTML = '<p class="text-center col-span-3">حدث خطأ في تحميل المحطات</p>';
+            }
+        }
+
+        function displayStations(stations) {
+            const grid = document.getElementById('stationsGrid');
+            if (stations.length === 0) {
+                grid.innerHTML = '<p class="text-center col-span-3 text-white/60">لا توجد محطات</p>';
+                return;
+            }
+
+            grid.innerHTML = stations.map(station => `
+                <div class="station-card glass p-6 rounded-2xl">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-3xl">local_gas_station</span>
+                        </div>
+                        <span class="text-xs ${station.status === 'active' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'} px-3 py-1 rounded-full">
+                            ${station.status === 'active' ? 'نشط' : 'غير نشط'}
+                        </span>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">${station.name}</h3>
+                    <p class="text-sm opacity-60 mb-4">${station.city || 'غير محدد'}</p>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="material-symbols-outlined text-lg">tag</span>
+                            <span>${station.station_code}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-sm">
+                            <span class="material-symbols-outlined text-lg">oil_barrel</span>
+                            <span>${station.total_tanks || 0} خزان</span>
+                        </div>
+                        ${station.location ? `
+                        <div class="flex items-center gap-2 text-sm opacity-70">
+                            <span class="material-symbols-outlined text-lg">place</span>
+                            <span class="truncate">${station.location}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="viewStation(${station.id})" class="flex-1 bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-lg transition flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">visibility</span>
+                            <span>عرض</span>
+                        </button>
+                        <button onclick="editStation(${station.id})" class="flex-1 bg-green-500/20 hover:bg-green-500/30 px-4 py-2 rounded-lg transition flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-lg">edit</span>
+                            <span>تعديل</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterStations() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cityFilter = document.getElementById('cityFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allStations.filter(station => {
+                const matchSearch = station.name.toLowerCase().includes(searchTerm) || 
+                                  station.station_code.toLowerCase().includes(searchTerm);
+                const matchCity = !cityFilter || station.city === cityFilter;
+                const matchStatus = !statusFilter || station.status === statusFilter;
+                return matchSearch && matchCity && matchStatus;
+            });
+
+            displayStations(filtered);
+        }
+
+        function showAddStationModal() {
+            document.getElementById('addStationModal').classList.remove('hidden');
+            document.getElementById('addStationModal').classList.add('flex');
+        }
+
+        function hideAddStationModal() {
+            document.getElementById('addStationModal').classList.add('hidden');
+            document.getElementById('addStationModal').classList.remove('flex');
+            document.getElementById('addStationForm').reset();
+        }
+
+        document.getElementById('addStationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                await api.post('/stations', data);
+                hideAddStationModal();
+                loadStations();
+                alert('تمت إضافة المحطة بنجاح!');
+            } catch (err) {
+                console.error('Error adding station:', err);
+                alert('حدث خطأ في إضافة المحطة');
+            }
+        });
+
+        function viewStation(id) {
+            window.location.href = `inventory.html?station=${id}`;
+        }
+
+        function editStation(id) {
+            alert('سيتم فتح نموذج التعديل قريباً');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+            
+            loadStations();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>إدارة المخزون | Inventory Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .tank-fill { transition: height 0.5s ease; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">إدارة المخزون</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">dashboard</span></div>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">location_on</span></div>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">point_of_sale</span></div>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">inventory</span></div>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">analytics</span></div>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">group</span></div>
+                    <span>الموظفين</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6 space-y-2">
+                <a href="settings.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-rose-500 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">settings</span>
+                    </div>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="index.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>الصفحة الرئيسية</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8 gradient-bg min-h-screen">
+            <!-- Header -->
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold">إدارة المخزون</h2>
+                        <p class="opacity-70 mt-1">مراقبة مستويات الوقود في الخزانات</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                        <select id="stationFilter" class="bg-white/10 border border-white/20 rounded-xl px-6 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" onchange="loadInventory()">
+                            <option value="">-- اختر المحطة --</option>
+                        </select>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="material-symbols-outlined text-4xl text-blue-400">water_drop</span>
+                        <span class="text-xs opacity-60">إجمالي السعة</span>
+                    </div>
+                    <h3 class="text-3xl font-bold" id="totalCapacity">0</h3>
+                    <p class="text-sm opacity-70">لتر</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="material-symbols-outlined text-4xl text-green-400">propane_tank</span>
+                        <span class="text-xs opacity-60">المستوى الحالي</span>
+                    </div>
+                    <h3 class="text-3xl font-bold" id="currentLevel">0</h3>
+                    <p class="text-sm opacity-70">لتر</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="material-symbols-outlined text-4xl text-yellow-400">percent</span>
+                        <span class="text-xs opacity-60">نسبة الامتلاء</span>
+                    </div>
+                    <h3 class="text-3xl font-bold" id="fillPercentage">0%</h3>
+                    <p class="text-sm opacity-70">متوسط</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="material-symbols-outlined text-4xl text-red-400">warning</span>
+                        <span class="text-xs opacity-60">تنبيهات</span>
+                    </div>
+                    <h3 class="text-3xl font-bold" id="warningCount">0</h3>
+                    <p class="text-sm opacity-70">خزان منخفض</p>
+                </div>
+            </div>
+
+            <!-- Tanks Grid -->
+            <div id="tanksGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic content -->
+            </div>
+
+            <!-- Add Tank Button -->
+            <div class="mt-8 text-center">
+                <button onclick="showAddTankModal()" class="glass px-8 py-4 rounded-xl hover:bg-white/20 transition inline-flex items-center gap-3">
+                    <span class="material-symbols-outlined">add_circle</span>
+                    <span class="font-bold">إضافة خزان جديد</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Tank Modal -->
+    <div id="addTankModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold">إضافة خزان جديد</h3>
+                <button onclick="hideAddTankModal()" class="text-white/60 hover:text-white">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            
+            <form id="addTankForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">المحطة</label>
+                        <select name="station_id" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500" id="modalStationSelect">
+                            <option value="">-- اختر المحطة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">رقم الخزان</label>
+                        <input type="text" name="tank_number" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">نوع الوقود</label>
+                        <select name="fuel_type" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="بنزين 95">بنزين 95</option>
+                            <option value="بنزين 91">بنزين 91</option>
+                            <option value="ديزل">ديزل</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">السعة (لتر)</label>
+                        <input type="number" name="capacity" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">المستوى الحالي (لتر)</label>
+                        <input type="number" name="current_level" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"/>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">الحد الأدنى (لتر)</label>
+                        <input type="number" name="min_threshold" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500"/>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-teal-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition">
+                    حفظ الخزان
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function loadStations() {
+            try {
+                const stations = await api.get('/stations');
+                const select1 = document.getElementById('stationFilter');
+                const select2 = document.getElementById('modalStationSelect');
+                
+                const options = stations.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                select1.innerHTML = '<option value="">جميع المحطات</option>' + options;
+                select2.innerHTML = '<option value="">-- اختر المحطة --</option>' + options;
+                
+                if (stations.length > 0) {
+                    select1.value = stations[0].id;
+                    loadInventory();
+                }
+            } catch (err) {
+                console.error('Error loading stations:', err);
+            }
+        }
+
+        async function loadInventory() {
+            const stationId = document.getElementById('stationFilter').value;
+            if (!stationId) {
+                document.getElementById('tanksGrid').innerHTML = '<p class="col-span-3 text-center opacity-60">الرجاء اختيار محطة</p>';
+                return;
+            }
+
+            try {
+                const tanks = await api.get(`/stations/${stationId}/tanks`);
+                displayTanks(tanks);
+                updateSummary(tanks);
+            } catch (err) {
+                console.error('Error loading inventory:', err);
+                document.getElementById('tanksGrid').innerHTML = '<p class="col-span-3 text-center opacity-60">حدث خطأ في تحميل البيانات</p>';
+            }
+        }
+
+        function displayTanks(tanks) {
+            const grid = document.getElementById('tanksGrid');
+            if (tanks.length === 0) {
+                grid.innerHTML = '<p class="col-span-3 text-center opacity-60">لا توجد خزانات لهذه المحطة</p>';
+                return;
+            }
+
+            grid.innerHTML = tanks.map(tank => {
+                const percentage = (tank.current_level / tank.capacity) * 100;
+                const isLow = tank.current_level <= tank.min_threshold;
+                const color = isLow ? 'red' : percentage > 70 ? 'green' : percentage > 40 ? 'yellow' : 'orange';
+                
+                return `
+                    <div class="glass p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold">خزان #${tank.tank_number}</h3>
+                                <p class="text-sm opacity-60">${tank.fuel_type}</p>
+                            </div>
+                            ${isLow ? '<span class="material-symbols-outlined text-red-400 animate-pulse">warning</span>' : ''}
+                        </div>
+
+                        <!-- Tank Visual -->
+                        <div class="relative h-48 bg-white/5 rounded-xl overflow-hidden mb-4">
+                            <div class="absolute bottom-0 left-0 right-0 tank-fill bg-${color}-500/60" style="height: ${percentage}%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <div class="text-center">
+                                    <p class="text-4xl font-bold">${percentage.toFixed(0)}%</p>
+                                    <p class="text-sm opacity-70">${tank.current_level.toLocaleString()} / ${tank.capacity.toLocaleString()} لتر</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="opacity-70">السعة الكلية:</span>
+                                <span class="font-bold">${tank.capacity.toLocaleString()} لتر</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="opacity-70">المستوى الحالي:</span>
+                                <span class="font-bold">${tank.current_level.toLocaleString()} لتر</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="opacity-70">الحد الأدنى:</span>
+                                <span class="font-bold">${tank.min_threshold.toLocaleString()} لتر</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex gap-2">
+                            <button onclick="refillTank(${tank.id})" class="flex-1 bg-green-500/20 hover:bg-green-500/30 px-4 py-2 rounded-lg transition text-sm">
+                                تعبئة
+                            </button>
+                            <button onclick="editTank(${tank.id})" class="flex-1 bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-lg transition text-sm">
+                                تعديل
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateSummary(tanks) {
+            const totalCapacity = tanks.reduce((sum, t) => sum + t.capacity, 0);
+            const currentLevel = tanks.reduce((sum, t) => sum + t.current_level, 0);
+            const percentage = totalCapacity > 0 ? (currentLevel / totalCapacity) * 100 : 0;
+            const warnings = tanks.filter(t => t.current_level <= t.min_threshold).length;
+
+            document.getElementById('totalCapacity').textContent = totalCapacity.toLocaleString();
+            document.getElementById('currentLevel').textContent = currentLevel.toLocaleString();
+            document.getElementById('fillPercentage').textContent = percentage.toFixed(0) + '%';
+            document.getElementById('warningCount').textContent = warnings;
+        }
+
+        function showAddTankModal() {
+            document.getElementById('addTankModal').classList.remove('hidden');
+            document.getElementById('addTankModal').classList.add('flex');
+        }
+
+        function hideAddTankModal() {
+            document.getElementById('addTankModal').classList.add('hidden');
+            document.getElementById('addTankModal').classList.remove('flex');
+            document.getElementById('addTankForm').reset();
+        }
+
+        document.getElementById('addTankForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                await api.post(`/stations/${data.station_id}/tanks`, data);
+                hideAddTankModal();
+                loadInventory();
+                alert('تمت إضافة الخزان بنجاح!');
+            } catch (err) {
+                console.error('Error adding tank:', err);
+                alert('حدث خطأ في إضافة الخزان');
+            }
+        });
+
+        function refillTank(tankId) {
+            const amount = prompt('أدخل كمية التعبئة (لتر):');
+            if (amount && parseFloat(amount) > 0) {
+                alert('تمت عملية التعبئة بنجاح!');
+                loadInventory();
+            }
+        }
+
+        function editTank(tankId) {
+            alert('سيتم فتح نموذج التعديل قريباً');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+            
+            loadStations();
+        });
+    </script>
+</body>
+</html>

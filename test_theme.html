@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>اختبار الثيم | Theme Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white gradient-bg">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">اختبار الثيم</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">point_of_sale</span>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">inventory</span>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>الموظفين</span>
+                </a>
+                <a href="settings.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="test_theme.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <span class="material-symbols-outlined">color_lens</span>
+                    <span>اختبار الثيم</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 mr-64 p-8 gradient-bg min-h-screen">
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold">اختبار الثيم</h2>
+                        <p class="opacity-70 mt-1">Testing theme functionality</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold mb-4">الثيم الحالي</h2>
+                    <div id="currentTheme" class="p-4 rounded-xl bg-white/10 mb-4">...</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="applyTheme('blue')" class="py-2 bg-blue-500 rounded-lg">أزرق</button>
+                        <button onclick="applyTheme('green')" class="py-2 bg-green-500 rounded-lg">أخضر</button>
+                        <button onclick="applyTheme('purple')" class="py-2 bg-purple-500 rounded-lg">بنفسجي</button>
+                        <button onclick="applyTheme('dark')" class="py-2 bg-gray-800 rounded-lg">داكن</button>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold mb-4">اللغة والاتجاه</h2>
+                    <div id="currentLangDir" class="p-4 rounded-xl bg-white/10 mb-4">...</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="applyLanguage('ar')" class="py-2 bg-orange-500 rounded-lg">العربية</button>
+                        <button onclick="applyLanguage('en')" class="py-2 bg-blue-500 rounded-lg">English</button>
+                        <button onclick="applyDirection('rtl')" class="py-2 bg-red-500 rounded-lg">RTL</button>
+                        <button onclick="applyDirection('ltr')" class="py-2 bg-green-500 rounded-lg">LTR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl mt-8">
+                <h2 class="text-xl font-bold mb-4">وضع الظلام</h2>
+                <div class="flex items-center justify-between">
+                    <span>تفعيل وضع الظلام</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" id="darkModeToggle" onchange="toggleDarkMode()">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize mock user
+        const mockUser = {
+            id: 1,
+            username: 'admin',
+            email: 'admin@oilcompany.com',
+            userType: 'admin',
+            fullName: 'المدير العام'
+        };
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        localStorage.setItem('token', 'direct-access');
+
+        // Update display with current settings
+        function updateDisplay() {
+            const settings = settingsManager.getSettings();
+            document.getElementById('currentTheme').innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">palette</span>
+                    <span>الثيم: ${settings.theme}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    <span>الظلام: ${settings.darkMode ? 'مفعل' : 'معطل'}</span>
+                </div>
+            `;
+            
+            document.getElementById('currentLangDir').innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">language</span>
+                    <span>اللغة: ${settings.language}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="material-symbols-outlined">format_textdirection_l_to_r</span>
+                    <span>الاتجاه: ${settings.textDirection}</span>
+                </div>
+            `;
+            
+            document.getElementById('darkModeToggle').checked = settings.darkMode;
+        }
+
+        // Apply theme
+        function applyTheme(theme) {
+            settingsManager.setTheme(theme);
+            updateDisplay();
+        }
+
+        // Apply language
+        function applyLanguage(lang) {
+            settingsManager.setLanguage(lang);
+            updateDisplay();
+        }
+
+        // Apply direction
+        function applyDirection(dir) {
+            settingsManager.setTextDirection(dir);
+            updateDisplay();
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            settingsManager.toggleDarkMode();
+            updateDisplay();
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

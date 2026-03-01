@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <script src="api_helper.js"></script>
+</head>
+<body>
+    <h1>Testing API Connection</h1>
+    <div id="results"></div>
+    
+    <script>
+        // Set up mock user for testing
+        const mockUser = {
+            id: 1,
+            username: 'admin',
+            email: 'admin@oilcompany.com',
+            userType: 'admin',
+            fullName: 'Test User'
+        };
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        localStorage.setItem('token', 'direct-access');
+        
+        async function testAPI() {
+            const resultsDiv = document.getElementById('results');
+            
+            try {
+                resultsDiv.innerHTML = '<p>Testing stations endpoint...</p>';
+                const stations = await api.get('/stations');
+                resultsDiv.innerHTML += `<p>✅ Stations: Found ${stations.length} station(s)</p>`;
+                
+                resultsDiv.innerHTML += '<p>Testing sales endpoint...</p>';
+                const sales = await api.get('/sales');
+                resultsDiv.innerHTML += `<p>✅ Sales: Found ${sales.length} sale(s)</p>`;
+                
+                resultsDiv.innerHTML += '<p>Testing reports endpoint...</p>';
+                const summary = await api.get('/reports/sales/summary');
+                resultsDiv.innerHTML += `<p>✅ Reports: Total sales = ${summary.total_sales}, Count = ${summary.sales_count}</p>`;
+                
+                resultsDiv.innerHTML += '<p>Testing employees endpoint...</p>';
+                const employees = await api.get('/employees');
+                resultsDiv.innerHTML += `<p>✅ Employees: Found ${employees.length} employee(s)</p>`;
+                
+                resultsDiv.innerHTML += '<p>All API tests passed! ✅</p>';
+            } catch (error) {
+                resultsDiv.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+                console.error('API Test Error:', error);
+            }
+        }
+        
+        // Run test when page loads
+        window.onload = testAPI;
+    </script>
+</body>
+</html>

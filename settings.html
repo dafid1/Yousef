@@ -1,0 +1,322 @@
+ <!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>الإعدادات | Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .settings-panel { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .theme-option { transition: all 0.3s ease; cursor: pointer; }
+        .theme-option:hover { transform: scale(1.05); }
+        .theme-option.active { border: 2px solid white; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+        .active-btn { background: rgba(255,255,255,0.2) !important; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">الإعدادات</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">location_on</span>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">point_of_sale</span>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">inventory</span>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>الموظفين</span>
+                </a>
+                <a href="settings.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span>الإعدادات</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 mr-64 p-8 gradient-bg min-h-screen settings-panel">
+        <!-- Header -->
+        <header class="glass py-6">
+            <div class="container mx-auto px-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='index.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">arrow_back</span>
+                        </button>
+                        <div>
+                            <h1 class="text-2xl font-bold">الإعدادات</h1>
+                            <p class="text-sm opacity-80">System Settings</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2" id="languageDisplay">
+                        <span class="material-symbols-outlined">language</span>
+                        <span>العربية</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Theme Settings -->
+                <div class="glass p-8 rounded-3xl">
+                    <h2 class="text-2xl font-bold mb-6">سمات العرض</h2>
+                    <h3 class="text-lg font-semibold mb-4">اختر السمة:</h3>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <!-- Blue Theme -->
+                        <div class="theme-option glass p-4 rounded-xl text-center" onclick="setTheme('blue')" id="theme-blue">
+                            <div class="w-full h-20 rounded-lg mb-3" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                            <p class="font-medium">أزرق</p>
+                            <p class="text-sm opacity-70">Blue</p>
+                        </div>
+                        
+                        <!-- Green Theme -->
+                        <div class="theme-option glass p-4 rounded-xl text-center" onclick="setTheme('green')" id="theme-green">
+                            <div class="w-full h-20 rounded-lg mb-3" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                            <p class="font-medium">أخضر</p>
+                            <p class="text-sm opacity-70">Green</p>
+                        </div>
+                        
+                        <!-- Purple Theme -->
+                        <div class="theme-option glass p-4 rounded-xl text-center" onclick="setTheme('purple')" id="theme-purple">
+                            <div class="w-full h-20 rounded-lg mb-3" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);"></div>
+                            <p class="font-medium">بنفسجي</p>
+                            <p class="text-sm opacity-70">Purple</p>
+                        </div>
+                        
+                        <!-- Dark Theme -->
+                        <div class="theme-option glass p-4 rounded-xl text-center" onclick="setTheme('dark')" id="theme-dark">
+                            <div class="w-full h-20 rounded-lg mb-3" style="background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);"></div>
+                            <p class="font-medium">داكن</p>
+                            <p class="text-sm opacity-70">Dark</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dark Mode Toggle -->
+                    <div class="flex items-center justify-between p-4 glass rounded-xl">
+                        <div>
+                            <p class="font-medium">الوضع الليلي</p>
+                            <p class="text-sm opacity-70">Dark Mode</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" class="sr-only peer" id="darkModeToggle" onchange="toggleDarkMode()">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Language Settings -->
+                <div class="glass p-8 rounded-3xl">
+                    <h2 class="text-2xl font-bold mb-6">اللغة</h2>
+                    <h3 class="text-lg font-semibold mb-4">اختر اللغة:</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Arabic -->
+                        <div class="theme-option glass p-4 rounded-xl flex items-center justify-between" onclick="setLanguage('ar')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-white flex items-center justify-center text-xl">ع</div>
+                                <div>
+                                    <p class="font-medium">العربية</p>
+                                    <p class="text-sm opacity-70">Arabic</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined" id="lang-ar">radio_button_checked</span>
+                        </div>
+                        
+                        <!-- English -->
+                        <div class="theme-option glass p-4 rounded-xl flex items-center justify-between" onclick="setLanguage('en')">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-r from-red-500 to-blue-500 flex items-center justify-center text-xl">E</div>
+                                <div>
+                                    <p class="font-medium">English</p>
+                                    <p class="text-sm opacity-70">الإنجليزية</p>
+                                </div>
+                            </div>
+                            <span class="material-symbols-outlined" id="lang-en">radio_button_unchecked</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Text Direction Toggle -->
+                    <div class="mt-8 p-4 glass rounded-xl">
+                        <h3 class="font-semibold mb-3">اتجاه النص</h3>
+                        <div class="flex gap-2">
+                            <button onclick="setTextDirection('rtl')" class="flex-1 py-2 glass rounded-lg font-medium active-btn" id="dir-rtl">من اليمين لليسار</button>
+                            <button onclick="setTextDirection('ltr')" class="flex-1 py-2 glass rounded-lg font-medium" id="dir-ltr">من اليسار لليمين</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="glass p-8 rounded-3xl mt-8">
+                <h2 class="text-2xl font-bold mb-6">معلومات النظام</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-4xl mb-2 block">database</span>
+                        <p class="text-sm opacity-70">قاعدة البيانات</p>
+                        <p class="font-bold">SQLite</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-4xl mb-2 block">code</span>
+                        <p class="text-sm opacity-70">الإصدار</p>
+                        <p class="font-bold">v1.0.0</p>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-4xl mb-2 block">settings</span>
+                        <p class="text-sm opacity-70">الإعدادات المحفوظة</p>
+                        <p class="font-bold" id="settingsStatus">الحالية</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
+
+    <script>
+        // Load saved settings
+        function loadSettings() {
+            // Settings manager handles loading automatically
+            const settings = settingsManager.getSettings();
+            
+            // Update UI to reflect current settings
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+            document.getElementById(`theme-${settings.theme}`).classList.add('active');
+            
+            document.getElementById('lang-ar').textContent = settings.language === 'ar' ? 'radio_button_checked' : 'radio_button_unchecked';
+            document.getElementById('lang-en').textContent = settings.language === 'en' ? 'radio_button_checked' : 'radio_button_unchecked';
+            
+            // Update direction buttons
+            document.getElementById('dir-rtl').className = settings.textDirection === 'rtl' ? 
+                'flex-1 py-2 glass rounded-lg font-medium active-btn' : 
+                'flex-1 py-2 glass rounded-lg font-medium';
+            document.getElementById('dir-ltr').className = settings.textDirection === 'ltr' ? 
+                'flex-1 py-2 glass rounded-lg font-medium active-btn' : 
+                'flex-1 py-2 glass rounded-lg font-medium';
+                
+            document.getElementById('darkModeToggle').checked = settings.darkMode;
+        }
+
+        // Set theme
+        function setTheme(theme) {
+            // Remove active class from all themes
+            document.querySelectorAll('.theme-option').forEach(el => el.classList.remove('active'));
+            
+            // Add active class to selected theme
+            document.getElementById(`theme-${theme}`).classList.add('active');
+            
+            // Update body background through settings manager
+            settingsManager.setTheme(theme);
+            
+            // Update settings status
+            updateSettingsStatus();
+        }
+
+        // Set language
+        function setLanguage(lang) {
+            // Update radio buttons
+            document.getElementById('lang-ar').textContent = lang === 'ar' ? 'radio_button_checked' : 'radio_button_unchecked';
+            document.getElementById('lang-en').textContent = lang === 'en' ? 'radio_button_checked' : 'radio_button_unchecked';
+            
+            // Update language display
+            const langDisplay = document.getElementById('languageDisplay');
+            if (lang === 'ar') {
+                langDisplay.innerHTML = '<span class="material-symbols-outlined">language</span><span>العربية</span>';
+            } else {
+                langDisplay.innerHTML = '<span class="material-symbols-outlined">language</span><span>English</span>';
+            }
+            
+            // Save through settings manager
+            settingsManager.setLanguage(lang);
+            updateSettingsStatus();
+        }
+
+        // Set text direction
+        function setTextDirection(direction) {
+            // Update button states
+            document.getElementById('dir-rtl').className = direction === 'rtl' ? 
+                'flex-1 py-2 bg-white/20 rounded-lg font-medium' : 
+                'flex-1 py-2 glass rounded-lg font-medium';
+            document.getElementById('dir-ltr').className = direction === 'ltr' ? 
+                'flex-1 py-2 bg-white/20 rounded-lg font-medium' : 
+                'flex-1 py-2 glass rounded-lg font-medium';
+            
+            // Apply through settings manager
+            settingsManager.setTextDirection(direction);
+            updateSettingsStatus();
+        }
+
+        // Toggle dark mode
+        function toggleDarkMode() {
+            settingsManager.toggleDarkMode();
+            updateSettingsStatus();
+        }
+
+        // Update settings status
+        function updateSettingsStatus() {
+            const status = document.getElementById('settingsStatus');
+            status.textContent = 'محدثة';
+            status.className = 'font-bold text-green-400';
+            
+            // Reset after 2 seconds
+            setTimeout(() => {
+                status.textContent = 'الحالية';
+                status.className = 'font-bold';
+            }, 2000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+            
+            // Initialize settings manager
+            if (typeof settingsManager !== 'undefined') {
+                settingsManager.loadSettings();
+                settingsManager.applySettings();
+            }
+            
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>لوحة التحكم الرئيسية | Gas Station Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false,
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .stat-card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Sidebar -->
+    <div class="flex min-h-screen">
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">إدارة متكاملة</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">dashboard</span></div>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">location_on</span></div>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">point_of_sale</span></div>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">inventory</span></div>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">analytics</span></div>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">group</span></div>
+                    <span>الموظفين</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6 space-y-2">
+                <a href="settings.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-rose-500 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">settings</span>
+                    </div>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="index.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>الصفحة الرئيسية</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8 gradient-bg min-h-screen">
+            <!-- Header -->
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold">لوحة التحكم الرئيسية</h2>
+                        <p class="opacity-70 mt-1">نظرة شاملة على جميع العمليات</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                        <div class="text-left">
+                            <p class="text-sm opacity-70">مرحباً،</p>
+                            <p class="font-bold" id="userName">المدير العام</p>
+                        </div>
+                        <div class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">store</span>
+                        </div>
+                        <span class="text-xs opacity-60">المحطات النشطة</span>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2" id="stationCount">0</h3>
+                    <p class="text-sm opacity-70">محطة تعمل</p>
+                </div>
+
+                <div class="glass p-6 rounded-2xl stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">payments</span>
+                        </div>
+                        <span class="text-xs opacity-60">إجمالي المبيعات اليوم</span>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2" id="totalSales">0</h3>
+                    <p class="text-sm opacity-70">ريال سعودي</p>
+                </div>
+
+                <div class="glass p-6 rounded-2xl stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">receipt</span>
+                        </div>
+                        <span class="text-xs opacity-60">عدد العمليات</span>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2" id="salesCount">0</h3>
+                    <p class="text-sm opacity-70">عملية بيع</p>
+                </div>
+
+                <div class="glass p-6 rounded-2xl stat-card">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-orange-500 rounded-xl flex items-center justify-center">
+                            <span class="material-symbols-outlined text-2xl">oil_barrel</span>
+                        </div>
+                        <span class="text-xs opacity-60">الخزانات</span>
+                    </div>
+                    <h3 class="text-4xl font-bold mb-2" id="tankCount">0</h3>
+                    <p class="text-sm opacity-70">خزان وقود</p>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Sales Chart -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4">المبيعات الأسبوعية</h3>
+                    <canvas id="salesChart" height="200"></canvas>
+                </div>
+
+                <!-- Fuel Distribution -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4">توزيع أنواع الوقود</h3>
+                    <canvas id="fuelChart" height="200"></canvas>
+                </div>
+            </div>
+
+            <!-- Recent Activities & Stations -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Recent Sales -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4">آخر المبيعات</h3>
+                    <div id="recentSales" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <!-- Stations List -->
+                <div class="glass p-6 rounded-2xl">
+                    <h3 class="text-xl font-bold mb-4">المحطات</h3>
+                    <div id="stationsList" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let salesChart, fuelChart;
+
+        async function loadDashboard() {
+            try {
+                // Load stats
+                const stations = await api.get('/stations');
+                document.getElementById('stationCount').textContent = stations.length;
+
+                const summary = await api.get('/reports/sales/summary');
+                document.getElementById('totalSales').textContent = (summary.total_sales || 0).toLocaleString();
+                document.getElementById('salesCount').textContent = summary.sales_count || 0;
+
+                // Count total tanks
+                let totalTanks = 0;
+                stations.forEach(station => totalTanks += station.total_tanks || 0);
+                document.getElementById('tankCount').textContent = totalTanks;
+
+                // Load stations list
+                loadStationsList(stations);
+
+                // Load recent sales
+                loadRecentSales();
+
+                // Initialize charts
+                initCharts();
+            } catch (err) {
+                console.error('Dashboard error:', err);
+            }
+        }
+
+        function loadStationsList(stations) {
+            const container = document.getElementById('stationsList');
+            container.innerHTML = stations.slice(0, 5).map(station => `
+                <div class="bg-white/5 p-4 rounded-xl flex items-center justify-between hover:bg-white/10 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+                            <span class="material-symbols-outlined">local_gas_station</span>
+                        </div>
+                        <div>
+                            <p class="font-bold">${station.name}</p>
+                            <p class="text-xs opacity-60">${station.city || 'غير محدد'}</p>
+                        </div>
+                    </div>
+                    <span class="text-xs bg-green-500/20 text-green-300 px-3 py-1 rounded-full">${station.status === 'active' ? 'نشط' : 'غير نشط'}</span>
+                </div>
+            `).join('');
+        }
+
+        async function loadRecentSales() {
+            try {
+                const sales = await api.get('/sales');
+                const container = document.getElementById('recentSales');
+                container.innerHTML = sales.slice(0, 5).map(sale => `
+                    <div class="bg-white/5 p-4 rounded-xl flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-teal-500 rounded-lg flex items-center justify-center">
+                                <span class="material-symbols-outlined">receipt</span>
+                            </div>
+                            <div>
+                                <p class="font-bold">${sale.fuel_type}</p>
+                                <p class="text-xs opacity-60">${sale.quantity} لتر</p>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <p class="font-bold text-green-400">${sale.total_amount.toFixed(2)} ر.س</p>
+                            <p class="text-xs opacity-60">${new Date(sale.sale_date).toLocaleDateString('ar-SA')}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Error loading sales:', err);
+            }
+        }
+
+        function initCharts() {
+            // Sales Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            salesChart = new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                    datasets: [{
+                        label: 'المبيعات (ريال)',
+                        data: [12000, 19000, 15000, 25000, 22000, 30000, 28000],
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+                        x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } }
+                    }
+                }
+            });
+
+            // Fuel Chart
+            const fuelCtx = document.getElementById('fuelChart').getContext('2d');
+            fuelChart = new Chart(fuelCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['بنزين 95', 'بنزين 91', 'ديزل'],
+                    datasets: [{
+                        data: [45, 35, 20],
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#fff', padding: 15 }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+            
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

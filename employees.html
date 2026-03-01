@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>إدارة الموظفين | Employee Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols_Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #30cfd0 0%, #330867 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .employee-card { transition: all 0.3s ease; }
+        .employee-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-64 glass p-6 fixed h-full">
+            <div class="flex items-center gap-3 mb-10">
+                <span class="material-symbols-outlined text-4xl">local_gas_station</span>
+                <div>
+                    <h1 class="font-bold text-lg">نظام المحطات</h1>
+                    <p class="text-xs opacity-60">إدارة الموظفين</p>
+                </div>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="dashboard.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">dashboard</span></div>
+                    <span>لوحة التحكم</span>
+                </a>
+                <a href="stations.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-green-500 to-teal-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">location_on</span></div>
+                    <span>المحطات</span>
+                </a>
+                <a href="sales.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">point_of_sale</span></div>
+                    <span>المبيعات</span>
+                </a>
+                <a href="inventory.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">inventory</span></div>
+                    <span>المخزون</span>
+                </a>
+                <a href="reports.html" class="flex items-center gap-3 hover:bg-white/10 p-3 rounded-xl transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">analytics</span></div>
+                    <span>التقارير</span>
+                </a>
+                <a href="employees.html" class="flex items-center gap-3 bg-white/20 p-3 rounded-xl">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-blue-500 flex items-center justify-center"><span class="material-symbols-outlined text-sm">group</span></div>
+                    <span>الموظفين</span>
+                </a>
+            </nav>
+
+            <div class="absolute bottom-6 left-6 right-6 space-y-2">
+                <a href="settings.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-rose-500 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-sm">settings</span>
+                    </div>
+                    <span>الإعدادات</span>
+                </a>
+                <a href="index.html" class="flex items-center gap-3 glass p-3 rounded-xl hover:bg-white/10 transition">
+                    <span class="material-symbols-outlined">home</span>
+                    <span>الصفحة الرئيسية</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 ml-64 p-8 gradient-bg min-h-screen">
+            <!-- Header -->
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-bold">إدارة الموظفين</h2>
+                        <p class="opacity-70 mt-1">عرض وإدارة بيانات الموظفين</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                        <button onclick="showAddEmployeeModal()" class="bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition flex items-center gap-2">
+                            <span class="material-symbols-outlined">person_add</span>
+                            <span>إضافة موظف</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="material-symbols-outlined text-4xl text-blue-400">badge</span>
+                        <span class="text-xs opacity-60">إجمالي</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" id="totalEmployees">0</h3>
+                    <p class="text-sm opacity-70">موظف</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="material-symbols-outlined text-4xl text-green-400">check_circle</span>
+                        <span class="text-xs opacity-60">نشط</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" id="activeEmployees">0</h3>
+                    <p class="text-sm opacity-70">موظف نشط</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="material-symbols-outlined text-4xl text-orange-400">schedule</span>
+                        <span class="text-xs opacity-60">دوام</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1" id="onDuty">0</h3>
+                    <p class="text-sm opacity-70">في الدوام</p>
+                </div>
+                <div class="glass p-6 rounded-2xl">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="material-symbols-outlined text-4xl text-purple-400">star</span>
+                        <span class="text-xs opacity-60">الأداء</span>
+                    </div>
+                    <h3 class="text-3xl font-bold mb-1">95%</h3>
+                    <p class="text-sm opacity-70">متوسط الأداء</p>
+                </div>
+            </div>
+
+            <!-- Search & Filter -->
+            <div class="glass p-6 rounded-2xl mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="text" id="searchInput" placeholder="بحث بالاسم أو الرقم..." class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" onkeyup="filterEmployees()"/>
+                    <select id="stationFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none" onchange="filterEmployees()">
+                        <option value="">جميع المحطات</option>
+                    </select>
+                    <select id="positionFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none" onchange="filterEmployees()">
+                        <option value="">جميع الوظائف</option>
+                        <option value="مدير">مدير</option>
+                        <option value="محاسب">محاسب</option>
+                        <option value="عامل">عامل</option>
+                    </select>
+                    <select id="statusFilter" class="bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none" onchange="filterEmployees()">
+                        <option value="">جميع الحالات</option>
+                        <option value="active">نشط</option>
+                        <option value="inactive">غير نشط</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Employees Grid -->
+            <div id="employeesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dynamic content -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-50">
+        <div class="glass p-8 rounded-3xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold">إضافة موظف جديد</h3>
+                <button onclick="hideAddEmployeeModal()" class="text-white/60 hover:text-white">
+                    <span class="material-symbols-outlined text-3xl">close</span>
+                </button>
+            </div>
+            
+            <form id="addEmployeeForm" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">الاسم الكامل</label>
+                        <input type="text" name="name" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">رقم الهوية</label>
+                        <input type="text" name="id_number" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">رقم الجوال</label>
+                        <input type="tel" name="phone" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">البريد الإلكتروني</label>
+                        <input type="email" name="email" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">المحطة</label>
+                        <select name="station_id" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" id="modalStationSelect">
+                            <option value="">-- اختر المحطة --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">الوظيفة</label>
+                        <input type="text" name="position" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">تاريخ التعيين</label>
+                        <input type="date" name="hire_date" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                        <label class="block mb-2 text-sm opacity-80">الحالة</label>
+                        <select name="status" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="active">نشط</option>
+                            <option value="inactive">غير نشط</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition">
+                    حفظ الموظف
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allEmployees = [];
+
+        async function loadEmployees() {
+            try {
+                allEmployees = await api.get('/employees');
+                displayEmployees(allEmployees);
+                updateStats(allEmployees);
+            } catch (err) {
+                console.error('Error loading employees:', err);
+                document.getElementById('employeesGrid').innerHTML = '<p class="text-center col-span-3">حدث خطأ في تحميل البيانات</p>';
+            }
+        }
+
+        async function loadStations() {
+            try {
+                const stations = await api.get('/stations');
+                const select1 = document.getElementById('stationFilter');
+                const select2 = document.getElementById('modalStationSelect');
+                
+                const options = stations.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+                select1.innerHTML = '<option value="">جميع المحطات</option>' + options;
+                select2.innerHTML = '<option value="">-- اختر المحطة --</option>' + options;
+            } catch (err) {
+                console.error('Error loading stations:', err);
+            }
+        }
+
+        function displayEmployees(employees) {
+            const grid = document.getElementById('employeesGrid');
+            if (employees.length === 0) {
+                grid.innerHTML = '<p class="text-center col-span-3 opacity-60">لا يوجد موظفين</p>';
+                return;
+            }
+
+            grid.innerHTML = employees.map(emp => `
+                <div class="employee-card glass p-6 rounded-2xl">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-2xl font-bold">
+                            ${emp.name.charAt(0)}
+                        </div>
+                        <span class="text-xs ${emp.status === 'active' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300'} px-3 py-1 rounded-full">
+                            ${emp.status === 'active' ? 'نشط' : 'غير نشط'}
+                        </span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold mb-1">${emp.name}</h3>
+                    <p class="text-sm opacity-60 mb-4">${emp.position || 'موظف'}</p>
+                    
+                    <div class="space-y-2 text-sm mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">phone</span>
+                            <span>${emp.phone || 'غير متوفر'}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">location_on</span>
+                            <span>محطة #${emp.station_id}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">calendar_today</span>
+                            <span>${emp.hire_date ? new Date(emp.hire_date).toLocaleDateString('ar-SA') : 'غير محدد'}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button onclick="viewEmployee(${emp.id})" class="flex-1 bg-blue-500/20 hover:bg-blue-500/30 px-4 py-2 rounded-lg transition text-sm">
+                            عرض
+                        </button>
+                        <button onclick="editEmployee(${emp.id})" class="flex-1 bg-green-500/20 hover:bg-green-500/30 px-4 py-2 rounded-lg transition text-sm">
+                            تعديل
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateStats(employees) {
+            document.getElementById('totalEmployees').textContent = employees.length;
+            document.getElementById('activeEmployees').textContent = employees.filter(e => e.status === 'active').length;
+            document.getElementById('onDuty').textContent = Math.floor(employees.length * 0.7);
+        }
+
+        function filterEmployees() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const stationId = document.getElementById('stationFilter').value;
+            const position = document.getElementById('positionFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            const filtered = allEmployees.filter(emp => {
+                const matchSearch = emp.name.toLowerCase().includes(search);
+                const matchStation = !stationId || emp.station_id.toString() === stationId;
+                const matchPosition = !position || emp.position === position;
+                const matchStatus = !status || emp.status === status;
+                return matchSearch && matchStation && matchPosition && matchStatus;
+            });
+
+            displayEmployees(filtered);
+        }
+
+        function showAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.remove('hidden');
+            document.getElementById('addEmployeeModal').classList.add('flex');
+        }
+
+        function hideAddEmployeeModal() {
+            document.getElementById('addEmployeeModal').classList.add('hidden');
+            document.getElementById('addEmployeeModal').classList.remove('flex');
+            document.getElementById('addEmployeeForm').reset();
+        }
+
+        document.getElementById('addEmployeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            try {
+                await api.post('/employees', data);
+                hideAddEmployeeModal();
+                loadEmployees();
+                alert('تمت إضافة الموظف بنجاح!');
+            } catch (err) {
+                console.error('Error adding employee:', err);
+                alert('حدث خطأ في إضافة الموظف');
+            }
+        });
+
+        function viewEmployee(id) {
+            alert('سيتم عرض تفاصيل الموظف قريباً');
+        }
+
+        function editEmployee(id) {
+            alert('سيتم فتح نموذج التعديل قريباً');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            const mockUser = {
+                id: 1,
+                username: 'admin',
+                email: 'admin@oilcompany.com',
+                userType: 'admin',
+                fullName: 'المدير العام'
+            };
+            localStorage.setItem('user', JSON.stringify(mockUser));
+            localStorage.setItem('token', 'direct-access');
+            
+            loadStations();
+            loadEmployees();
+        });
+    </script>
+</body>
+</html>

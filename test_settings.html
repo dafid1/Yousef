@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>اختبار الإعدادات | Settings Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="api_helper.js"></script>
+    <script src="settings_manager.js"></script>
+    <style>
+        * { font-family: 'Cairo', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .glass { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body class="bg-gray-900 text-white gradient-bg">
+    <div class="min-h-screen p-8">
+        <div class="max-w-4xl mx-auto">
+            <header class="glass p-6 rounded-2xl mb-8">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-3xl font-bold">اختبار الإعدادات</h1>
+                        <p class="opacity-70 mt-1">Test Settings Functionality</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.location.href='settings.html'" class="glass p-3 rounded-xl hover:bg-white/20 transition">
+                            <span class="material-symbols-outlined">settings</span>
+                        </button>
+                        <button onclick="testCurrentSettings()" class="bg-gradient-to-r from-green-500 to-teal-500 px-6 py-3 rounded-xl font-bold hover:scale-105 transition">
+                            اختبار الإعدادات الحالية
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold mb-4">السمة الحالية</h2>
+                    <div id="themeDisplay" class="p-4 rounded-xl bg-white/10 mb-4">...</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="changeTheme('blue')" class="py-2 bg-blue-500 rounded-lg">أزرق</button>
+                        <button onclick="changeTheme('green')" class="py-2 bg-green-500 rounded-lg">أخضر</button>
+                        <button onclick="changeTheme('purple')" class="py-2 bg-purple-500 rounded-lg">بنفسجي</button>
+                        <button onclick="changeTheme('dark')" class="py-2 bg-gray-800 rounded-lg">داكن</button>
+                    </div>
+                </div>
+
+                <div class="glass p-6 rounded-2xl">
+                    <h2 class="text-xl font-bold mb-4">اللغة والاتجاه</h2>
+                    <div id="langDirDisplay" class="p-4 rounded-xl bg-white/10 mb-4">...</div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="changeLanguage('ar')" class="py-2 bg-orange-500 rounded-lg">العربية</button>
+                        <button onclick="changeLanguage('en')" class="py-2 bg-blue-500 rounded-lg">English</button>
+                        <button onclick="changeDirection('rtl')" class="py-2 bg-red-500 rounded-lg">RTL</button>
+                        <button onclick="changeDirection('ltr')" class="py-2 bg-green-500 rounded-lg">LTR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-6 rounded-2xl mt-8">
+                <h2 class="text-xl font-bold mb-4">وضع الظلام</h2>
+                <div class="flex items-center justify-between">
+                    <span>تفعيل وضع الظلام</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer" id="darkModeToggle" onchange="toggleDarkModeUI()">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize mock user
+        const mockUser = {
+            id: 1,
+            username: 'admin',
+            email: 'admin@oilcompany.com',
+            userType: 'admin',
+            fullName: 'المدير العام'
+        };
+        localStorage.setItem('user', JSON.stringify(mockUser));
+        localStorage.setItem('token', 'direct-access');
+
+        // Update display with current settings
+        function updateDisplay() {
+            const settings = settingsManager.getSettings();
+            document.getElementById('themeDisplay').innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">palette</span>
+                    <span>السمة: ${settings.theme}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="material-symbols-outlined">dark_mode</span>
+                    <span>الظلام: ${settings.darkMode ? 'مفعل' : 'معطل'}</span>
+                </div>
+            `;
+            
+            document.getElementById('langDirDisplay').innerHTML = `
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined">language</span>
+                    <span>اللغة: ${settings.language}</span>
+                </div>
+                <div class="flex items-center gap-2 mt-2">
+                    <span class="material-symbols-outlined">format_textdirection_l_to_r</span>
+                    <span>الاتجاه: ${settings.textDirection}</span>
+                </div>
+            `;
+            
+            document.getElementById('darkModeToggle').checked = settings.darkMode;
+        }
+
+        // Theme change handler
+        function changeTheme(theme) {
+            settingsManager.setTheme(theme);
+            updateDisplay();
+        }
+
+        // Language change handler
+        function changeLanguage(lang) {
+            settingsManager.setLanguage(lang);
+            updateDisplay();
+        }
+
+        // Direction change handler
+        function changeDirection(dir) {
+            settingsManager.setTextDirection(dir);
+            updateDisplay();
+        }
+
+        // Dark mode toggle handler
+        function toggleDarkModeUI() {
+            settingsManager.toggleDarkMode();
+            updateDisplay();
+        }
+
+        // Test current settings
+        function testCurrentSettings() {
+            const settings = settingsManager.getSettings();
+            alert(`الإعدادات الحالية:\nالسمة: ${settings.theme}\nاللغة: ${settings.language}\nالاتجاه: ${settings.textDirection}\nالظلام: ${settings.darkMode}`);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>
